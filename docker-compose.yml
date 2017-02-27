@@ -1,0 +1,40 @@
+version: '2'
+
+services:
+  nginx:
+    build: ./docker-compose/nginx
+    ports:
+      - "8080:80"
+    environment:
+      APP_PORT: 9000
+    networks:
+      - "hugo"
+
+  hugo:
+    build: ./docker-compose/hugo
+    volumes:
+      - ".:/src"
+      - "css:/src/static/css"
+    networks:
+      - "hugo"
+    command: --disableLiveReload
+
+  sassc:
+    build: ./docker-compose/sassc
+    volumes:
+      - "./sass:/src"
+      - "css:/dst"
+
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./db_init.sql:/docker-entrypoint-initdb.d/db_init.sql"
+
+networks:
+  hugo:
+    driver: bridge
+
+volumes:
+  css:
